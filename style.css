@@ -2,6 +2,17 @@ body {
     margin: 0;
     overflow: hidden;
     background: black;
+
+    /* 🟢 追加：画面全体のテキストや画像の青い選択ハイライトを禁止する */
+    -webkit-user-select: none; /* Safari用 */
+    -moz-user-select: none;    /* Firefox用 */
+    -ms-user-select: none;     /* IE/Edge用 */
+    user-select: none;         /* 標準プロパティ */
+}
+
+/* 🟢 追加：画像単体のドラッグ（掴んで動かそうとする挙動）も禁止する */
+img {
+    pointer-events: none;
 }
 
 #container {
