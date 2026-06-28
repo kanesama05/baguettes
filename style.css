@@ -2,17 +2,16 @@ body {
     margin: 0;
     overflow: hidden;
     background: black;
-
-    /* 🟢 追加：画面全体のテキストや画像の青い選択ハイライトを禁止する */
-    -webkit-user-select: none; /* Safari用 */
-    -moz-user-select: none;    /* Firefox用 */
-    -ms-user-select: none;     /* IE/Edge用 */
-    user-select: none;         /* 標準プロパティ */
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
 }
 
-/* 🟢 追加：画像単体のドラッグ（掴んで動かそうとする挙動）も禁止する */
+/* 🟢 画像単体のドラッグのみ禁止する（クリックは無効化しない） */
 img {
-    pointer-events: none;
+    -webkit-user-drag: none; /* Safari, Chrome, Edge用 */
+    -webkit-touch-callout: none; /* Safariでの長押し防止 */
 }
 
 #container {
