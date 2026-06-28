@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BAGUETTES</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
+</head>
+
+<body>
+
+    <div id="fade-bg"></div>
+        
+    <div id="title-screen" class="screen">
+        <h1>BAGUETTES</h1>
+        <div id="begin" onclick="startStory()">
+            click to begin
+        </div>
+    </div>
+
+    <div id="story-screen" class="screen" onclick="skipOrProceedStory()">
+        <div id="story-text"></div>
+        <div id="story-hint">click to skip</div>
+    </div>
+
+    <div id="gallery-screen" class="screen">
+        <h2>どの謎と出会う？</h2>
+        <div id="gallery"></div>
+    </div>
+
+    <div id="question-popup-overlay">
+        <div class="popup-content">
+            <div id="popup-step-text">説明文がここに注入されます</div>
+            <div class="popup-controls">
+                <div id="popup-prev-btn" onclick="prevPopupStep()">戻る</div>
+                <div id="popup-next-btn" onclick="nextPopupStep()">次へ</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="reveal-screen" class="screen">
+        <div class="reveal-container">
+            <h2>── 真相 ──</h2>
+            <img src="" id="reveal-img-target" alt="バゲットの断面">
+            <p class="reveal-text">それは、「バゲットの断面」でした。</p>
+            <p class="reveal-sub">
+                バゲットの断面を墨で紙に写すと、普段見ているバゲットとはえない美しいパターンが現れます。<br>
+                そのパターンは、それが何かわからないことで私たちの想像力を刺激し、さまざまな意味を見出すことができるのです。<br>
+                そして、私たちが見出した意味は、宇宙や深海、あるいは生命の躍動といった、世界に唯一の物語へと姿を変えたのでした。
+            </p>
+            <div class="restart-btn" onclick="location.reload()">もう一度、別の意味を探す</div>
+        </div>
+    </div>
+
+    <div id="container">
+        <div id="ui-controls">
+            <div id="guide-trigger" onclick="openGuide()">遊び方を見る</div>
+            <div id="back-to-title-trigger" onclick="backToTitle()">タイトルに戻る</div>
+        </div>
+
+        <div id="image-panel">
+            <div id="image-mask" class="panel-mask"></div>
+
+            <div class="click-zone left" onclick="prevImage()"></div>
+            <img id="reference" src="images/wys1.png">
+            <div class="click-zone right" onclick="nextImage()"></div>
+            
+            <div id="reveal-trigger" onclick="triggerReveal()">謎の正体を明かす</div>
+        </div>
+
+        <div id="canvas-panel">
+            <div id="canvas-mask" class="panel-mask"></div>
+        </div>
+    </div>
+
+    <script src="sketch.js"></script>
+
+</body>
+</html>
