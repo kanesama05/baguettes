@@ -319,7 +319,7 @@ function showPopupStep(step) {
     prevBtn.style.visibility = (currentStep === 0) ? "hidden" : "visible";
     
     if (currentStep === guideSteps.length - 1) {
-        nextBtn.innerText = "言葉を蒐集する";
+        nextBtn.innerText = "言葉を収集する";
     } else {
         nextBtn.innerText = "次へ";
     }
