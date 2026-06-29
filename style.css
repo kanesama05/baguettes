@@ -444,3 +444,49 @@ img {
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
+
+/* ──────────────────────────────────────────────────────────
+   🟢 追加：スマートフォン・タブレット用のレスポンシブ対応
+────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    /* 画面全体を横並びから「縦並び」に変更 */
+    #container {
+        flex-direction: column;
+    }
+
+    /* 上側：画像パネルのサイズ調整 */
+    #image-panel {
+        width: 100%;
+        height: 40vh; /* 画面の上の40%を画像にする */
+        padding-bottom: 20px;
+    }
+    #image-panel img {
+        margin-top: 10px;
+        max-height: 85%;
+    }
+
+    /* 下側：文字キャンバス（p5.js）のサイズ調整 */
+    #canvas-panel {
+        width: 100%;
+        height: 60vh; /* 残り60%を文字エリアにする */
+    }
+
+    /* 真相画面の3枚画像もスマホだと潰れるので、少し小さく調整 */
+    .reveal-images-box {
+        gap: 10px; /* 隙間を狭く */
+        flex-wrap: wrap; /* 万が一の時は折り返す */
+    }
+    .reveal-images-box img {
+        max-height: 25vh; /* 縦幅を少し小さくして画面内に収める */
+        max-width: 30vw;
+    }
+    
+    /* テキストサイズをスマホ向けに少し小さく */
+    .reveal-text {
+        font-size: 20px;
+    }
+    .reveal-sub {
+        font-size: 13px;
+        max-width: 90%;
+    }
+}

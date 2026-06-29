@@ -210,7 +210,11 @@ function prevImage() {
 }
 
 function windowResized() {
-    resizeCanvas(windowWidth * 0.6, windowHeight);
+    let canvasPanel = document.getElementById('canvas-panel');
+    if (canvasPanel) {
+        // スマホのトレイ（上部バー）が出し入れされてもバグらないように追従
+        resizeCanvas(canvasPanel.clientWidth, canvasPanel.clientHeight);
+    }
 }
 
 // イントロテキスト
@@ -485,4 +489,12 @@ img.onclick = function () {
 // タイトル画面に戻る処理（ページを丸ごとリロードする方式に変更）
 function backToTitle() {
     location.reload();
+}
+
+// 🟢 追加：スマホでのタッチ時にブラウザがバグる（スクロール等）のを防止する
+function touchStarted() {
+    // プレイ画面が表示されている時だけ、スマホの標準ダブルタップズームなどを無効化
+    if (document.getElementById("container").style.display === "flex") {
+        return false; 
+    }
 }
