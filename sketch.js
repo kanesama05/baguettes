@@ -49,11 +49,11 @@ const NUM_WORDS = 10;
 let currentImage = 1;
 const maxImage = 35;
 
-let hasSeenGuide = false; // 🟢 追加：ガイドを既に見たかどうかの記録スイッチ
+let hasSeenGuide = false; 
 
 function setup() {
   let canvas = createCanvas(windowWidth * 0.6, windowHeight);
-  canvas.parent("canvas-panel");
+  canvas.parent('canvas-panel');
   textAlign(CENTER, CENTER);
   textFont("serif");
 
@@ -179,11 +179,10 @@ class FloatingWord {
 function updateImage() {
     let refImg = document.getElementById("reference");
     if (refImg) {
-        refImg.src = "images/mistery/wys" + currentImage + ".png"; // 🟢 misteryフォルダ経由に変更
+        refImg.src = "images/mistery/wys" + currentImage + ".png"; 
     }
 }
 
-// 矢印ボタンやキーによる切り替え時のマスクリセット用
 function resetMasks() {
     let imgMask = document.getElementById("image-mask");
     let canvasMask = document.getElementById("canvas-mask");
@@ -210,14 +209,9 @@ function prevImage() {
 }
 
 function windowResized() {
-    let canvasPanel = document.getElementById('canvas-panel');
-    if (canvasPanel) {
-        // スマホのトレイ（上部バー）が出し入れされてもバグらないように追従
-        resizeCanvas(canvasPanel.clientWidth, canvasPanel.clientHeight);
-    }
+  resizeCanvas(windowWidth * 0.6, windowHeight);
 }
 
-// イントロテキスト
 const storyText = `あなたは目覚めると無形の謎に出会う。\nそれが何かわからないことに、あなたは耐えられなくなった。\n\nそれを見ていると、あなたの頭の中には数多の言葉たちが浮かんでは消えていく。\nその断片を集め、繋ぎとめ、あなたはそれに形を与えようと試みる。\n\nこれは, 無形のものに輪郭を取り戻すための、静かな収集の旅。`;
 
 let storyIndex = 0;
@@ -285,7 +279,6 @@ function skipOrProceedStory() {
             galleryScreen.style.display = "flex";
             galleryScreen.classList.add("fade-out");
             
-            // 🟢 追加：ギャラリーに切り替わる瞬間に、裏側でプレイ画面（#container）を flex に戻しておく
             let container = document.getElementById("container");
             if (container) container.style.display = "flex";
             
@@ -296,7 +289,6 @@ function skipOrProceedStory() {
     }
 }
 
-// ステップ式ガイドポップアップのロジック
 let currentStep = 0;
 const guideSteps = [
     { text: "これがあなたが対峙した謎です。\nあなたには何に見えますか？", highlight: "image" },
@@ -334,7 +326,6 @@ function showPopupStep(step) {
     if (imgMask) imgMask.classList.remove("active");
     if (canvasMask) canvasMask.classList.remove("active");
 
-    // 🟢 変更：ハイライトされていない方のパネルに個別の薄い黒い幕（.active）をかける
     if (guideSteps[currentStep].highlight === "image") {
         imgPanel.classList.add("highlight-image");
         if (canvasMask) canvasMask.classList.add("active"); 
@@ -360,12 +351,11 @@ function prevPopupStep() {
 
 function closePopupAndStartGame() {
     let popupOverlay = document.getElementById("question-popup-overlay");
-    let fadeBg = document.getElementById("fade-bg"); // 🟢 追加
+    let fadeBg = document.getElementById("fade-bg"); 
     resetMasks();
     
     if (popupOverlay) popupOverlay.style.display = "none";
 
-    // 🟢 初回ガイド終了時に、黒い幕をじわーっと消す処理
     if (fadeBg && fadeBg.style.display !== "none") {
         fadeBg.style.transition = "opacity 0.8s ease";
         fadeBg.style.opacity = "0";
@@ -387,15 +377,17 @@ function triggerReveal() {
     let revealScreen = document.getElementById("reveal-screen");
     let mysteryImg = document.getElementById("reveal-img-mystery");
     let revealImg = document.getElementById("reveal-img-target");
+    let revealImg2 = document.getElementById("reveal-img-target2");
     let guideBtn = document.getElementById("guide-trigger");
     
-    // 左側に現在の「謎」の画像をセット
     if (mysteryImg) {
         mysteryImg.src = "images/mistery/wys" + currentImage + ".png";
     }
-    // 🟢 修正後：ファイル名末尾の「_1」に対応させました
     if (revealImg) {
         revealImg.src = "images/reveal1/wys" + currentImage + "_1.png";
+    }
+    if (revealImg2) {
+        revealImg2.src = "images/reveal2/wys" + currentImage + "_2.png";
     }
     
     if (guideBtn) {
@@ -418,13 +410,13 @@ window.addEventListener("DOMContentLoaded", () => {
             img.src = "images/mistery/wys" + i + ".png";
             img.className = "gallery-image";
 
-img.onclick = function () {
+            img.onclick = function () {
                 currentImage = i;
                 updateImage();
                 
                 let galleryScreen = document.getElementById("gallery-screen");
                 let fadeBg = document.getElementById("fade-bg");
-                let uiControls = document.getElementById("ui-controls"); // 🟢 変更
+                let uiControls = document.getElementById("ui-controls"); 
                 
                 galleryScreen.classList.add("fade-out");
                 
@@ -450,7 +442,6 @@ img.onclick = function () {
                         hasSeenGuide = true;
                     }
                     
-                    // 🟢 変更：遊び方とタイトルに戻るボタンをまとめて表示
                     if (uiControls) {
                         uiControls.style.opacity = "1";
                         uiControls.style.pointerEvents = "auto";
@@ -464,9 +455,8 @@ img.onclick = function () {
     document.addEventListener("keydown", function(e){
         if(e.key === "g" || e.key === "G"){
             let fadeBg = document.getElementById("fade-bg");
-            let uiControls = document.getElementById("ui-controls"); // 🟢 変更
+            let uiControls = document.getElementById("ui-controls"); 
             
-            // 🟢 変更：ギャラリーに戻るときはボタンエリアを非表示に
             if (uiControls) {
                 uiControls.style.opacity = "0";
                 uiControls.style.pointerEvents = "none";
@@ -486,15 +476,6 @@ img.onclick = function () {
     });
 });
 
-// タイトル画面に戻る処理（ページを丸ごとリロードする方式に変更）
 function backToTitle() {
     location.reload();
-}
-
-// 🟢 追加：スマホでのタッチ時にブラウザがバグる（スクロール等）のを防止する
-function touchStarted() {
-    // プレイ画面が表示されている時だけ、スマホの標準ダブルタップズームなどを無効化
-    if (document.getElementById("container").style.display === "flex") {
-        return false; 
-    }
 }

@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>BAGUETTES</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
+    <script src="sketch.js"></script>
 </head>
 
 <body>
@@ -14,9 +14,9 @@
     <div id="fade-bg"></div>
         
     <div id="title-screen" class="screen">
-        <h1>BAGUETTE</h1>
+        <h1>BAGUETTES</h1>
         <div id="begin" onclick="startStory()">
-            tap to begin
+            click to begin
         </div>
     </div>
 
@@ -40,16 +40,19 @@
         </div>
     </div>
 
-<div id="reveal-screen" class="screen">
+    <div id="reveal-screen" class="screen">
         <div class="reveal-container">
-            <h2>── 真真 ──</h2>
+            <h2>── 真相 ──</h2>
             
             <div class="reveal-images-box">
                 <div class="reveal-img-wrapper">
                     <img src="" id="reveal-img-mystery" alt="対峙した謎">
                 </div>
                 <div class="reveal-img-wrapper">
-                    <img src="" id="reveal-img-target" alt="バゲットの断面">
+                    <img src="" id="reveal-img-target" alt="バゲットの断面1">
+                </div>
+                <div class="reveal-img-wrapper">
+                    <img src="" id="reveal-img-target2" alt="バゲットの断面2">
                 </div>
             </div>
 
@@ -73,18 +76,16 @@
             <div id="image-mask" class="panel-mask"></div>
 
             <div class="click-zone left" onclick="prevImage()"></div>
-            <img id="reference" src="images/wys1.png">
+            <img id="reference" src="images/mistery/wys1.png">
             <div class="click-zone right" onclick="nextImage()"></div>
             
-            <div id="reveal-trigger" onclick="triggerReveal()">謎の正体を明かす</div>
+            <div id="reveal-trigger" onclick="triggerReveal()">真相を解き明かす</div>
         </div>
 
         <div id="canvas-panel">
             <div id="canvas-mask" class="panel-mask"></div>
         </div>
     </div>
-
-    <script src="sketch.js"></script>
 
 </body>
 </html>
