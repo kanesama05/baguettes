@@ -179,7 +179,7 @@ class FloatingWord {
 function updateImage() {
     let refImg = document.getElementById("reference");
     if (refImg) {
-        refImg.src = "images/wys" + currentImage + ".png";
+        refImg.src = "images/mistery/wys" + currentImage + ".png"; // 🟢 misteryフォルダ経由に変更
     }
 }
 
@@ -297,11 +297,12 @@ let currentStep = 0;
 const guideSteps = [
     { text: "これがあなたが対峙した謎です。\nあなたには何に見えますか？", highlight: "image" },
     { text: "これがあなたの頭に浮かんでは消えていく言葉たちです。\n画像から得られるイメージと一致した言葉を見つけたらそれをクリックして繋ぎ止めましょう。", highlight: "canvas" },
-    { text: "言葉は次々と消えていきます。直感に任せて言葉を集めてください。\n満足したらスペースを押してあなたが集めた言葉を眺めることができます。", highlight: "none" },
+    { text: "言葉は次々と消えていきます。直感に任せて言葉を集めてください。\nスペースを押すことで集めた言葉のみを表示できます。", highlight: "none" },
     { text: "画像を見て言葉を選び、言葉を見て画像から想像するという相互関係の中で、\nあなたすら知らないあなた自身の感覚によって唯一のストーリーが紡がれます。", highlight: "none" },
     { text: "あなたが一人なら、自分がなぜその言葉を選んだのか、言葉にしてみましょう。\n二人以上なら、他の人に選んだ理由を説明をしてください。\nそうすることであなたや他の人たちはあなたの感覚を知るでしょう。", highlight: "none" },
     { text: "Gを押すとあらためて謎を選べます。いろんな謎に挑んだり、同じ謎に交代で挑んだりしてお楽しみください。\nRで繋ぎ止めた言葉をリセットできます。", highlight: "none" },
-    { text: "もしこの謎の画像の正体が知りたくなったら、正体を明かすボタンを押してください。\nしばらく遊んでから知ることをお勧めします。", highlight: "none" }
+    { text: "もしこの謎の画像の正体が知りたくなったら、正体を明かすボタンを押してください。\nしばらく遊んでから知ることをお勧めします。", highlight: "none" },
+    { text: "この謎に終わりはありません。満足するまで想像を深めてください。", highlight: "none" }
 ];
 
 function showPopupStep(step) {
@@ -380,11 +381,17 @@ function openGuide() {
 
 function triggerReveal() {
     let revealScreen = document.getElementById("reveal-screen");
+    let mysteryImg = document.getElementById("reveal-img-mystery");
     let revealImg = document.getElementById("reveal-img-target");
     let guideBtn = document.getElementById("guide-trigger");
     
+    // 左側に現在の「謎」の画像をセット
+    if (mysteryImg) {
+        mysteryImg.src = "images/mistery/wys" + currentImage + ".png";
+    }
+    // 🟢 修正後：ファイル名末尾の「_1」に対応させました
     if (revealImg) {
-        revealImg.src = "images/wys" + currentImage + ".png";
+        revealImg.src = "images/reveal1/wys" + currentImage + "_1.png";
     }
     
     if (guideBtn) {
@@ -404,7 +411,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (galleryContainer) {
         for (let i = 1; i <= maxImage; i++) {
             let img = document.createElement("img");
-            img.src = "images/wys" + i + ".png";
+            img.src = "images/mistery/wys" + i + ".png";
             img.className = "gallery-image";
 
 img.onclick = function () {

@@ -368,12 +368,7 @@ img {
     letter-spacing: 4px;
     margin-bottom: 30px;
 }
-#reveal-img-target {
-    max-height: 45vh;
-    border: 1px solid #333;
-    margin-bottom: 30px;
-    object-fit: contain;
-}
+
 .reveal-text {
     font-size: 20px;
     margin-bottom: 15px;
@@ -388,4 +383,64 @@ img {
     /* 🟢 追加・変更：横幅を画面幅いっぱいに広げ、自動折り返しを完全に無くす */
     max-width: 95%;
     white-space: nowrap; 
+}
+
+/* ──────────────────────────────────────────────────────────
+   🟢 追加：2枚の画像を綺麗に横並びにするスタイリング
+────────────────────────────────────────────────────────── */
+.reveal-images-box {
+    display: flex;
+    justify-content: center;
+    gap: 40px;           /* 画像と画像のあいだの隙間 */
+    margin-bottom: 25px; /* 画像の下（テキスト）との隙間 */
+    max-width: 90%;
+}
+
+.reveal-img-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 謎と真相の画像、両方に適用されるスタイル */
+.reveal-images-box img {
+    max-height: 40vh;    /* 画面からはみ出さないように高さを制限 */
+    max-width: 40vw;     /* 横並びになってもはみ出さない幅 */
+    object-fit: contain; /* 画像の比率を保ったまま綺麗に収める */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* 画像の下につく「MYSTERY」「REVEAL」の文字ラベル */
+.img-label {
+    margin-top: 10px;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+/* ──────────────────────────────────────────────────────────
+   🟢 追加：2枚の画像を綺麗に横並びにするスタイリング（文字なし版）
+────────────────────────────────────────────────────────── */
+.reveal-images-box {
+    display: flex;
+    justify-content: center;
+    gap: 40px;           /* 画像と画像のあいだの隙間 */
+    margin-bottom: 35px; /* 画像の下（テキスト）との隙間 */
+    max-width: 90%;
+}
+
+.reveal-img-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* 謎と真相の画像、両方に適用されるスタイル */
+.reveal-images-box img {
+    max-height: 45vh;    /* 文字が消えた分、少しだけ画像を大きく表示できるように調整 */
+    max-width: 40vw;     /* 横並びになってもはみ出さない幅 */
+    object-fit: contain; /* 画像の比率を保ったまま綺麗に収める */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
