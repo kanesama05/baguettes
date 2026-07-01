@@ -476,6 +476,38 @@ window.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// 🟢 追加：真相画面からギャラリー画面へ直接戻る処理
+function backToGallery() {
+    let revealScreen = document.getElementById("reveal-screen");
+    let galleryScreen = document.getElementById("gallery-screen");
+    let fadeBg = document.getElementById("fade-bg");
+    let uiControls = document.getElementById("ui-controls");
+
+    // 真相画面を非表示にする
+    if (revealScreen) revealScreen.style.display = "none";
+    
+    // プレイ中の中身（集めた言葉など）を一度リセットする
+    fixedWords = [];
+    showFixedOnly = false;
+    resetMasks();
+
+    // ギャラリーに戻るときはプレイ画面のUIボタンを隠す
+    if (uiControls) {
+        uiControls.style.opacity = "0";
+        uiControls.style.pointerEvents = "none";
+    }
+
+    // 黒い背景幕とギャラリー画面を表示する
+    if (fadeBg) {
+        fadeBg.style.display = "block";
+        fadeBg.style.opacity = "1";
+    }
+    if (galleryScreen) {
+        galleryScreen.style.display = "flex";
+    } 
+}
+
+// 🟢 修正：ページ全体をリロードして最初のタイトル画面に完全に戻す
 function backToTitle() {
     location.reload();
 }
