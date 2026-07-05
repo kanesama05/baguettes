@@ -6,6 +6,8 @@
     <title>BAGUETTES</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.4/p5.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="sketch.js"></script>
 </head>
 
@@ -87,8 +89,44 @@
 
         <div id="canvas-panel">
             <div id="canvas-mask" class="panel-mask"></div>
+            <div id="timer-container">
+                <div id="timer-bar"></div>
+            </div>
         </div>
     </div>
+    <div id="result-popup-overlay" class="screen" style="display: none;">
+        <div class="result-content wide-layout">
+            <h2>── 収集の記録 ──</h2>
+            <p class="result-lead">60秒の制限時間が満ちました。あなたの感性と、これまでの旅人たちの軌跡を紐解きます。</p>
+            
+            <div class="result-main-flex">
+                <!-- 左側：選択した謎の画像 ＋ 自分が繋ぎとめた言葉 -->
+                <div class="result-left-column">
+                    <div class="result-image-preview">
+                        <img id="res-preview-img" src="" alt="対峙した謎">
+                    </div>
+                    <div class="collected-words-area">
+                        <h3>あなたが繋ぎとめた言葉</h3>
+                        <div id="res-words-list"></div>
+                    </div>
+                </div>
 
+                <!-- 右側：他の旅人たちの言葉の累積 -->
+                <div class="result-right-column">
+                    <div class="cumulative-words-area">
+                        <h3>この謎に対して他の旅人が紡いだ言葉</h3>
+                        <div id="res-cumulative-list">
+                            <!-- ここにデータが注入されます -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <div class="result-btn primary-btn" onclick="proceedToReveal()">このまま真相を解き明かす</div>
+                <div class="result-btn secondary-btn" onclick="closeResultAndStay()">この画面に残って鑑賞する</div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

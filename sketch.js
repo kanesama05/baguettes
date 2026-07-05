@@ -363,6 +363,7 @@ function closePopupAndStartGame() {
             fadeBg.style.display = "none";
         }, 800);
     }
+    startVisualTimer(60); 
 }
 
 function openGuide() {
@@ -434,12 +435,16 @@ window.addEventListener("DOMContentLoaded", () => {
                     }
                     
                     if (!hasSeenGuide) {
+                        // 初回：説明ポップアップを表示（タイマーはポップアップが閉じる時に始まります）
                         let popupOverlay = document.getElementById("question-popup-overlay");
                         if (popupOverlay) {
                             popupOverlay.style.display = "flex";
                             showPopupStep(0);
                         }
                         hasSeenGuide = true;
+                    } else {
+                        // 🟢 2回目以降：説明が出ないので、画像を選んだ瞬間に即座に60秒タイマーをリセット始動する
+                        startVisualTimer(60);
                     }
                     
                     if (uiControls) {
@@ -510,4 +515,162 @@ function backToGallery() {
 // 🟢 修正：ページ全体をリロードして最初のタイトル画面に完全に戻す
 function backToTitle() {
     location.reload();
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCTcpQhNxiPiHNFk60jBzIOMLZxwqbyF9I",
+  authDomain: "baguette2-640c7.firebaseapp.com",
+  projectId: "baguette2-640c7",
+  storageBucket: "baguette2-640c7.firebasestorage.app",
+  messagingSenderId: "165648260758",
+  appId: "1:165648260758:web:b68ac573259c4b84b3acb7",
+  measurementId: "G-PMXCG02K4G"
+};
+
+// Firebaseとデータベース（Firestore）の接続開始
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+let currentTimerId = null;
+
+function startVisualTimer(seconds) {
+    let timerBar = document.getElementById("timer-bar");
+    if (!timerBar) return;
+
+    if (currentTimerId !== null) {
+        clearInterval(currentTimerId);
+    }
+
+    timerBar.style.width = "100%";
+    let totalMiliseconds = seconds * 1000;
+    let elapsed = 0;
+    let intervalTime = 50; 
+
+    currentTimerId = setInterval(() => {
+        elapsed += intervalTime;
+        let percentage = Math.max(0, 100 - (elapsed / totalMiliseconds) * 100);
+        
+        timerBar.style.width = percentage + "%";
+
+        if (elapsed >= totalMiliseconds) {
+            clearInterval(currentTimerId);
+            currentTimerId = null;
+            
+            // 60秒経ったら自動で【本物の集計・保存処理】を呼び出す
+            saveAndShowRealResults();
+        }
+    }, intervalTime);
+}
+
+// 🟢 修正：エラーで固まらないように安全にした本物の集計表示関数
+async function saveAndShowRealResults() {
+    noLoop(); // p5.jsの描画を停止
+
+    // 1. 画像のプレビューを表示
+    let previewImg = document.getElementById("res-preview-img");
+    if (previewImg) {
+        previewImg.src = "images/mistery/wys" + currentImage + ".png";
+    }
+
+    // 2. 自分が繋ぎとめた言葉を画面に表示
+    let listEl = document.getElementById("res-words-list");
+    listEl.innerHTML = "";
+    if (fixedWords.length === 0) {
+        listEl.innerHTML = "<p style='color:#666; font-size:12px; margin:0;'>繋ぎとめた言葉はありませんでした。</p>";
+    } else {
+        fixedWords.forEach(w => {
+            let span = document.createElement("span");
+            span.className = "res-word-badge";
+            span.innerText = w.word;
+            listEl.appendChild(span);
+        });
+    }
+
+    let cumulativeList = document.getElementById("res-cumulative-list");
+    cumulativeList.innerHTML = "<p style='color:#888; font-size:12px;'>旅人たちの記録を読み込み中...</p>";
+
+    // ポップアップをまず表示させて、固まったように見せない
+    let resPopup = document.getElementById("result-popup-overlay");
+    if (resPopup) resPopup.style.display = "flex";
+
+    // どの謎（画像番号）のデータかを区別するための名前
+    const mysteryId = "mystery_" + currentImage;
+    const docRef = db.collection("cumulative_words").doc(mysteryId);
+
+    try {
+        // 3. 自分が選んだ言葉をデータベースに「本物の1票」として蓄積・更新する処理
+        if (fixedWords.length > 0) {
+            let updateData = {};
+            fixedWords.forEach(w => {
+                // 修正ポイント：scriptタグ（互換モード）の正しいインクリメントの書き方に修正
+                updateData[w.word] = firebase.firestore.FieldValue.increment(1);
+            });
+            await docRef.set(updateData, { merge: true });
+        }
+
+        // 4. データベースから最新の累積データをダウンロード
+        const doc = await docRef.get();
+        cumulativeList.innerHTML = "";
+
+        if (doc.exists) {
+            const data = doc.data(); // データベースの中身（単語と回数のペア）
+            
+            // 画面に綺麗に並べるために配列に変換
+            let sortedWords = [];
+            for (let word in data) {
+                // 数値以外のデータが混ざっていた場合の防御策
+                if (typeof data[word] === 'number') {
+                    sortedWords.push({ word: word, count: data[word] });
+                }
+            }
+
+            if (sortedWords.length === 0) {
+                cumulativeList.innerHTML = "<p style='color:#666; font-size:12px;'>まだ累積データがありません。</p>";
+                return;
+            }
+
+            // 選択回数が多い順（ランキング順）にソート
+            sortedWords.sort((a, b) => b.count - a.count);
+
+            // 最大値を基準にゲージの長さを算出
+            let maxVotes = sortedWords[0].count || 1;
+
+            // HTMLに本物の集計データを注入
+            sortedWords.forEach(item => {
+                let row = document.createElement("div");
+                row.className = "cumulative-row";
+                let barWidth = (item.count / maxVotes) * 100;
+
+                row.innerHTML = `
+                    <div class="cumulative-bar-bg" style="width: ${barWidth}%"></div>
+                    <span class="cumulative-word">${item.word}</span>
+                    <span class="cumulative-count">${item.count} 回 選択</span>
+                `;
+                cumulativeList.appendChild(row);
+            });
+        } else {
+            cumulativeList.innerHTML = "<p style='color:#666; font-size:12px;'>あなたがこの謎の最初の旅人です。次のプレイからデータが反映されます。</p>";
+        }
+
+    } catch (error) {
+        console.error("Firebase通信エラー:", error);
+        cumulativeList.innerHTML = `
+            <p style='color:#ff8888; font-size:12px; margin-bottom:5px;'>データの取得に失敗しました。</p>
+            <p style='color:#555; font-size:10px;'>エラー原因: ${error.message}</p>
+        `;
+    }
+}
+
+function proceedToReveal() {
+    let resPopup = document.getElementById("result-popup-overlay");
+    if (resPopup) resPopup.style.display = "none";
+    triggerReveal();
+}
+
+function closeResultAndStay() {
+    let resPopup = document.getElementById("result-popup-overlay");
+    if (resPopup) resPopup.style.display = "none";
+    loop();
 }

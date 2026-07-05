@@ -475,3 +475,240 @@ img {
     border-color: #fff;
     box-shadow: 0 0 12px rgba(255, 255, 255, 0.2);
 }
+
+#image-panel, #canvas-panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+/* p5.jsのキャンバス自体の縦幅を画像（reference）に揃えるための余白確保（下にゲージ分のスペースを作る） */
+#canvas-panel canvas {
+    max-height: calc(100% - 15px) !important; /* 縦幅いっぱいにせず、下に15pxの隙間を作る */
+}
+
+/* ゲージを載せるベースの黒い細長い枠 */
+#timer-container {
+    width: 60%; /* sketch.jsの createCanvas(windowWidth * 0.6) と横幅を揃える */
+    height: 6px; /* ゲージの太さ */
+    background: rgba(255, 255, 255, 0.1); /* 減った部分の後ろの薄いグレー */
+    margin-top: 8px; /* キャンバスとの隙間 */
+    position: relative;
+    overflow: hidden;
+}
+
+/* 右から左へ縮む白いバー */
+#timer-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%; /* 最初は満タン */
+    height: 100%;
+    background: #ffffff; /* 白いゲージ */
+}
+/* ──────────────────────────────────────────────────────────
+   🟢 追加：メインコンテナを正しく横並びにする修正
+────────────────────────────────────────────────────────── */
+#container {
+    display: none; /* JSでflexに切り替わります */
+    flex-direction: row; /* 👈 画像とキャンバスを強制的に横並びにする */
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+}
+
+/* ──────────────────────────────────────────────────────────
+   🟢 追加：結果集計ポップアップのスタイル
+────────────────────────────────────────────────────────── */
+#result-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 2000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+    font-family: "serif";
+}
+
+/* 横幅を広くして2カラムに対応 */
+.result-content.wide-layout {
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 35px;
+    max-width: 850px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+    box-sizing: border-box;
+}
+
+.result-content h2 {
+    font-size: 24px;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+    color: #fff;
+}
+
+.result-lead {
+    font-size: 13px;
+    color: #aaa;
+    margin-bottom: 30px;
+}
+
+/* 左右2カラムにするフレックスボックス */
+.result-main-flex {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.result-left-column {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.result-right-column {
+    width: 55%;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 15px;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* 左側：画像のプレビュー枠（ここが超拡大するのを防ぎます） */
+.result-image-preview {
+    width: 100%;
+    height: 180px;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+}
+
+.result-image-preview img {
+    max-width: 100% !important;
+    max-height: 100% !important;
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin: 0 !important; /* メイン画面のmarginを打ち消す */
+}
+
+/* 見出しのスタイル */
+.collected-words-area h3, .cumulative-words-area h3 {
+    font-size: 13px;
+    color: #ffdc73;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+}
+
+#res-words-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 120px;
+    overflow-y: auto;
+}
+
+.res-word-badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-size: 13px;
+    color: #eee;
+}
+
+/* 右側：累積データのデザイン */
+#res-cumulative-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.cumulative-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 13px;
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.03);
+    position: relative;
+    overflow: hidden;
+}
+
+.cumulative-bar-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.07);
+    z-index: 1;
+    transition: width 0.5s ease;
+}
+
+.cumulative-word {
+    z-index: 2;
+    color: #eee;
+}
+
+.cumulative-count {
+    z-index: 2;
+    color: #ffdc73;
+    font-size: 11px;
+}
+
+/* ボタン関係 */
+.result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.result-btn {
+    padding: 12px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: center;
+    font-family: "serif";
+}
+
+.primary-btn {
+    background: #fff;
+    color: #000;
+}
+.primary-btn:hover {
+    background: #ffdc73;
+    box-shadow: 0 0 15px rgba(255, 220, 115, 0.4);
+}
+
+.secondary-btn {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #ccc;
+}
+.secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
