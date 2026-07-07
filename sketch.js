@@ -63,8 +63,14 @@ function setup() {
 }
 
 function draw() {
-  background(0, 20);
+  // 🟢 モードに応じて背景を塗りつぶし
+  if (window.wordsOnlyMode) {
+    background(0); 
+  } else {
+    background(0, 20);
+  }
 
+  // 1. 自分が繋ぎとめた（クリックした）言葉を描画
   for (let w of fixedWords) {
     fill(255, 220, 180);
     noStroke();
@@ -72,12 +78,21 @@ function draw() {
     text(w.word, w.x, w.y);
   }
 
+  // 🟢 判定：「紡いだ言葉のみ表示」または「Spaceキーでの表示固定」がONか
+  let isFadeOutMode = (window.wordsOnlyMode || showFixedOnly);
+
+  // 2. 画面を浮遊している言葉たちの処理
   for (let i = texts.length - 1; i >= 0; i--) {
-    texts[i].update();
-    if (!showFixedOnly) {
-      texts[i].display();
+    // 🎨 変更：言葉のみ表示モードの時は、文字の移動（update）を止めてその場に静止させます
+    if (!isFadeOutMode) {
+      texts[i].update();
     }
-    if (texts[i].dead()) {
+    
+    // 文字の描画（フェードアウト処理付き）
+    texts[i].display(isFadeOutMode);
+    
+    // 🎨 変更：言葉のみ表示モードの時は、文字が死んでも【新たな言葉を生成しない】ようにします
+    if (!isFadeOutMode && texts[i].dead()) {
       texts[i] = new FloatingWord();
     }
   }
@@ -89,6 +104,7 @@ function mousePressed() {
   let popup = document.getElementById("question-popup-overlay");
   if (popup && popup.style.display === "flex") return;
 
+  // 💡 ここはゲーム中の言葉を捕まえる処理です。タイトル画面のクリックはHTMLのonclick側（画面全体）に一任するため、ここでは干渉させず既存のままでOKです。
   for (let i = texts.length - 1; i >= 0; i--) {
     if (texts[i].clicked(mouseX, mouseY)) {
       fixedWords.push({
@@ -144,7 +160,7 @@ class FloatingWord {
     this.y += this.vy;
   }
 
-  display() {
+display(fadeOutMode = false) {
     let alpha;
     if (this.life < this.maxLife * 0.3) {
       alpha = map(this.life, 0, this.maxLife * 0.3, 0, 255);
@@ -153,10 +169,29 @@ class FloatingWord {
     } else {
       alpha = map(this.life, this.maxLife * 0.7, this.maxLife, 255, 0);
     }
-    fill(255, alpha);
-    noStroke();
-    textSize(this.size);
-    text(this.word, this.x, this.y);
+
+    // 🟢 修正：毎フレーム元のalphaに戻ってチカチカするのを防ぐ
+    if (fadeOutMode) {
+      // 最初の一回だけ、切り替わった瞬間の現在の透明度を保持する
+      if (this.fadeOutAlpha === undefined || this.fadeOutAlpha === null) {
+        this.fadeOutAlpha = alpha;
+      }
+      // 保持した透明度から、毎フレームスムーズに引いていく
+      this.fadeOutAlpha -= 8; // 👈 じわっと消える速度（お好みで調整してください）
+      if (this.fadeOutAlpha < 0) this.fadeOutAlpha = 0;
+      alpha = this.fadeOutAlpha;
+    } else {
+      // 通常モードに戻ったらフェード用の値をリセット
+      this.fadeOutAlpha = null;
+    }
+
+    // 透明度が0より大きいときだけ描画（完全に消えた文字は描画スキップ）
+    if (alpha > 0) {
+      fill(255, alpha);
+      noStroke();
+      textSize(this.size);
+      text(this.word, this.x, this.y);
+    }
   }
 
   dead() {
@@ -292,13 +327,14 @@ function skipOrProceedStory() {
 let currentStep = 0;
 const guideSteps = [
     { text: "これがあなたが対峙した謎です。\nあなたには何に見えますか？", highlight: "image" },
-    { text: "これがあなたの頭に浮かんでは消えていく言葉たちです。\n画像から得られるイメージと一致した言葉を見つけたらそれをクリックして繋ぎ止めましょう。", highlight: "canvas" },
-    { text: "言葉は次々と消えていきます。直感に任せて言葉を集めてください。\nスペースを押すことで集めた言葉のみを表示できます。", highlight: "none" },
-    { text: "画像を見て言葉を選び、言葉を見て画像から想像するという相互関係の中で、\nあなたすら知らないあなた自身の感覚によって唯一のストーリーが紡がれます。", highlight: "none" },
-    { text: "あなたが一人なら、自分がなぜその言葉を選んだのか、言葉にしてみましょう。\n二人以上なら、他の人に選んだ理由を説明をしてください。\nそうすることであなたや他の人たちはあなたの感覚を知るでしょう。", highlight: "none" },
-    { text: "Gを押すとあらためて謎を選べます。いろんな謎に挑んだり、同じ謎に交代で挑んだりしてお楽しみください。\nRで繋ぎ止めた言葉をリセットできます。", highlight: "none" },
-    { text: "もしこの謎の画像の正体が知りたくなったら、正体を明かすボタンを押してください。\nしばらく遊んでから知ることをお勧めします。", highlight: "none" },
-    { text: "この謎に終わりはありません。満足するまで想像を深めてください。", highlight: "none" }
+    //{ text: "これがあなたの頭に浮かんでは消えていく言葉たちです。\n画像から得られるイメージと一致した言葉を見つけたらそれをクリックして繋ぎ止めましょう。", highlight: "canvas" },
+    //{ text: "言葉は次々と消えていきます。直感に任せて言葉を集めてください。\nスペースを押すことで集めた言葉のみを表示できます。", highlight: "none" },
+    //{ text: "画像を見て言葉を選び、言葉を見て画像から想像するという相互関係の中で、\nあなたすら知らないあなた自身の感覚によって唯一のストーリーが紡がれます。", highlight: "none" },
+    //{ text: "あなたが一人なら、自分がなぜその言葉を選んだのか、言葉にしてみましょう。\n二人以上なら、他の人に選んだ理由を説明をしてください。\nそうすることであなたや他の人たちはあなたの感覚を知るでしょう。", highlight: "none" },
+    //{ text: "Gを押すとあらためて謎を選べます。いろんな謎に挑んだり、同じ謎に交代で挑んだりしてお楽しみください。\nRで繋ぎ止めた言葉をリセットできます。", highlight: "none" },
+    //{ text: "もしこの謎の画像の正体が知りたくなったら、正体を明かすボタンを押してください。\nしばらく遊んでから知ることをお勧めします。", highlight: "none" },
+    //{ text: "この謎に終わりはありません。満足するまで想像を深めてください。", highlight: "none" }
+    { text: "遊び方はお手元の手引書を参照してください。\n制限時間は60秒です。あなたの直感を信じてお楽しみください。", highlight: "none" }
 ];
 
 function showPopupStep(step) {
@@ -363,6 +399,7 @@ function closePopupAndStartGame() {
             fadeBg.style.display = "none";
         }, 800);
     }
+    startVisualTimer(60); 
 }
 
 function openGuide() {
@@ -416,7 +453,6 @@ window.addEventListener("DOMContentLoaded", () => {
                 
                 let galleryScreen = document.getElementById("gallery-screen");
                 let fadeBg = document.getElementById("fade-bg");
-                let uiControls = document.getElementById("ui-controls"); 
                 
                 galleryScreen.classList.add("fade-out");
                 
@@ -433,6 +469,9 @@ window.addEventListener("DOMContentLoaded", () => {
                         fadeBg.style.display = "none";
                     }
                     
+                    // 🟢 修正：画像を選択してゲーム画面に入った瞬間に、上下のボタンを表示する
+                    showGameUI();
+                    
                     if (!hasSeenGuide) {
                         let popupOverlay = document.getElementById("question-popup-overlay");
                         if (popupOverlay) {
@@ -440,11 +479,8 @@ window.addEventListener("DOMContentLoaded", () => {
                             showPopupStep(0);
                         }
                         hasSeenGuide = true;
-                    }
-                    
-                    if (uiControls) {
-                        uiControls.style.opacity = "1";
-                        uiControls.style.pointerEvents = "auto";
+                    } else {
+                        startVisualTimer(60);
                     }
                 }, 800);
             };
@@ -454,14 +490,10 @@ window.addEventListener("DOMContentLoaded", () => {
 
     document.addEventListener("keydown", function(e){
         if(e.key === "g" || e.key === "G"){
-            let fadeBg = document.getElementById("fade-bg");
-            let uiControls = document.getElementById("ui-controls"); 
-            
-            if (uiControls) {
-                uiControls.style.opacity = "0";
-                uiControls.style.pointerEvents = "none";
-            }
+            // 🟢 修正：Gキーでギャラリーに戻る時は、上下のボタンを非表示にする
+            hideGameUI();
 
+            let fadeBg = document.getElementById("fade-bg");
             if(fadeBg) {
                 fadeBg.style.display = "block";
                 fadeBg.style.opacity = "1";
@@ -507,7 +539,339 @@ function backToGallery() {
     } 
 }
 
-// 🟢 修正：ページ全体をリロードして最初のタイトル画面に完全に戻す
-function backToTitle() {
-    location.reload();
+// 🟢 ページをリロードせずに、すべての状態を最初からプレイできるように完全リセットする関数
+function resetToTitle() {
+  // 1. p5.js のループを再開
+  loop();
+
+  // 2. 収集した言葉の配列、および浮遊する言葉の配列をすべてクリア
+  fixedWords = [];
+  texts = [];
+  
+  // 💡 安全対策：NUM_WORDS または maxTexts のどちらが使われていてもエラーにならないように定義
+  let count = (typeof NUM_WORDS !== 'undefined') ? NUM_WORDS : 10;
+  
+  // 再び初期の浮遊する言葉を画面いっぱいに生成
+  for (let i = 0; i < count; i++) {
+    texts.push(new FloatingWord());
+  }
+
+  // 3. ゲームの制御フラグやタイマー状態を初期化
+  isGameOver = false;
+  showFixedOnly = false;
+  window.wordsOnlyMode = false;
+
+  // 💡 ストーリー再生管理用の変数を最初に戻す（storyIndex も確実にリセット）
+  storyIndex = 0;
+  if (typeof currentStoryIndex !== 'undefined') currentStoryIndex = 0;
+  isStoryPlaying = false;
+  if (storyTimer) clearTimeout(storyTimer);
+
+  // 「紡いだ言葉のみ表示」ボタンのアクティブ状態を外す
+  let wordsOnlyBtn = document.getElementById("btn-toggle-words");
+  if (wordsOnlyBtn) {
+    wordsOnlyBtn.classList.remove("active-mode");
+  }
+
+  // 4. タイマーゲージ（白いバー）を満タンにリセット
+  let timerBar = document.getElementById("timer-bar");
+  if (timerBar) {
+    timerBar.style.width = "100%";
+  }
+  if (currentTimerId !== null) {
+    clearInterval(currentTimerId);
+    currentTimerId = null;
+  }
+
+  // 5. すべての画面要素の表示（display）をタイトル画面以外すべて消す
+  const elementsToHide = [
+    "question-popup-overlay",
+    "result-popup-overlay",
+    "reveal-screen",
+    "container",
+    "gallery-screen",
+    "story-screen"
+  ];
+  
+  elementsToHide.forEach(id => {
+    let el = document.getElementById(id);
+    if (el) el.style.display = "none";
+  });
+
+  // 💡 タイトル移動時に背後の黒い幕（fade-bg）を復帰させる
+  let fadeBg = document.getElementById("fade-bg");
+  if (fadeBg) {
+    fadeBg.style.display = "block";
+    fadeBg.style.opacity = "1";
+    fadeBg.style.pointerEvents = "none";
+  }
+
+  // 💡 最初のタイトル画面を表示
+  let titleScreen = document.getElementById("title-screen");
+  if (titleScreen) {
+    titleScreen.style.display = "flex";
+    titleScreen.classList.remove("fade-out"); // フェードアウト状態を解除してクッキリ表示
+  }
 }
+
+// もし既存のコードにこのような処理があれば、中身を resetToTitle() に変更します
+function backToTitle() {
+    resetToTitle();
+}
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCTcpQhNxiPiHNFk60jBzIOMLZxwqbyF9I",
+  authDomain: "baguette2-640c7.firebaseapp.com",
+  projectId: "baguette2-640c7",
+  storageBucket: "baguette2-640c7.firebasestorage.app",
+  messagingSenderId: "165648260758",
+  appId: "1:165648260758:web:b68ac573259c4b84b3acb7",
+  measurementId: "G-PMXCG02K4G"
+};
+
+// Firebaseとデータベース（Firestore）の接続開始
+if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+}
+const db = firebase.firestore();
+
+let currentTimerId = null;
+
+function startVisualTimer(seconds) {
+    let timerBar = document.getElementById("timer-bar");
+    if (!timerBar) return;
+
+    if (currentTimerId !== null) {
+        clearInterval(currentTimerId);
+    }
+
+    timerBar.style.width = "100%";
+    let totalMiliseconds = seconds * 1000;
+    let elapsed = 0;
+    let intervalTime = 50; 
+
+    currentTimerId = setInterval(() => {
+        elapsed += intervalTime;
+        let percentage = Math.max(0, 100 - (elapsed / totalMiliseconds) * 100);
+        
+        timerBar.style.width = percentage + "%";
+
+        if (elapsed >= totalMiliseconds) {
+            clearInterval(currentTimerId);
+            currentTimerId = null;
+            
+            // 60秒経ったら自動で【本物の集計・保存処理】を呼び出す
+            saveAndShowRealResults();
+        }
+    }, intervalTime);
+}
+
+// 🟢 修正：自分が選ぶ「1個前」の累積データを表示してから、裏で今回のデータを保存する構造に変更
+async function saveAndShowRealResults() {
+    noLoop(); // p5.jsの描画を停止
+
+    // 1. 画像のプレビューを表示
+    let previewImg = document.getElementById("res-preview-img");
+    if (previewImg) {
+        previewImg.src = "images/mistery/wys" + currentImage + ".png";
+    }
+
+    // 2. 自分が繋ぎとめた言葉を画面に表示
+    let listEl = document.getElementById("res-words-list");
+    listEl.innerHTML = "";
+    if (fixedWords.length === 0) {
+        listEl.innerHTML = "<p style='color:#666; font-size:12px; margin:0;'>繋ぎとめた言葉はありませんでした。</p>";
+    } else {
+        fixedWords.forEach(w => {
+            let span = document.createElement("span");
+            span.className = "res-word-badge";
+            span.innerText = w.word;
+            listEl.appendChild(span);
+        });
+    }
+
+    let cumulativeList = document.getElementById("res-cumulative-list");
+    cumulativeList.innerHTML = "<p style='color:#888; font-size:12px;'>旅人たちの記録を読み込み中...</p>";
+
+    // ポップアップをまず表示させて、固まったように見せない
+    let resPopup = document.getElementById("result-popup-overlay");
+    if (resPopup) resPopup.style.display = "flex";
+
+    // どの謎（画像番号）のデータかを区別するための名前
+    const mysteryId = "mystery_" + currentImage;
+    const docRef = db.collection("cumulative_words").doc(mysteryId);
+
+    try {
+        // 🔥 【変更ステップ1】：今回の自分の言葉を混ぜる前に、まずデータベースから「これまでの累積データ」をダウンロードして表示する
+        const doc = await docRef.get();
+        cumulativeList.innerHTML = "";
+
+        if (doc.exists) {
+            const data = doc.data(); // 自分が投票する前の、まっさらな過去のデータ
+            
+            let sortedWords = [];
+            for (let word in data) {
+                if (typeof data[word] === 'number') {
+                    sortedWords.push({ word: word, count: data[word] });
+                }
+            }
+
+            if (sortedWords.length === 0) {
+                cumulativeList.innerHTML = "<p style='color:#666; font-size:12px;'>まだ累積データがありません。</p>";
+            } else {
+                // 選択回数が多い順にソート
+                sortedWords.sort((a, b) => b.count - a.count);
+                let maxVotes = sortedWords[0].count || 1;
+
+                // 画面に「純粋な過去データ」を反映
+                sortedWords.forEach(item => {
+                    let row = document.createElement("div");
+                    row.className = "cumulative-row";
+                    let barWidth = (item.count / maxVotes) * 100;
+
+                    row.innerHTML = `
+                        <div class="cumulative-bar-bg" style="width: ${barWidth}%"></div>
+                        <span class="cumulative-word">${item.word}</span>
+                        <span class="cumulative-count">${item.count} 回 選択</span>
+                    `;
+                    cumulativeList.appendChild(row);
+                });
+            }
+        } else {
+            cumulativeList.innerHTML = "<p style='color:#666; font-size:12px;'>あなたがこの謎の最初の旅人です。次のプレイからデータが反映されます。</p>";
+        }
+
+        // 🔥 【変更ステップ2】：画面への表示が完全に終わったあと、裏で静かに「今回の自分の1票」をデータベースに送信して次回の旅人のために更新する
+        if (fixedWords.length > 0) {
+            let updateData = {};
+            fixedWords.forEach(w => {
+                updateData[w.word] = firebase.firestore.FieldValue.increment(1);
+            });
+            // await をつけずに非同期で走らせるか、付けても表示の後なのでユーザーの体験には干渉しません
+            await docRef.set(updateData, { merge: true });
+        }
+
+    } catch (error) {
+        console.error("Firebase通信エラー:", error);
+        cumulativeList.innerHTML = `
+            <p style='color:#ff8888; font-size:12px; margin-bottom:5px;'>データの取得に失敗しました。</p>
+            <p style='color:#555; font-size:10px;'>エラー原因: ${error.message}</p>
+        `;
+    }
+}
+
+function closeResultAndStay() {
+    let resPopup = document.getElementById("result-popup-overlay");
+    if (resPopup) resPopup.style.display = "none";
+    loop();
+}
+
+// ──────────────────────────────────────────────────────────
+// 🟢 追加・修正：クリック操作用の関数と暗転バグの修正
+// ──────────────────────────────────────────────────────────
+
+// 1. ギャラリーに戻るボタン (G) のクリック処理
+function backToGalleryFromGame() {
+    // 既存の「G」キーを押したときの処理（例：backToGallery()等）を呼び出す
+    if (typeof backToGallery === "function") {
+        backToGallery();
+    }
+}
+
+// 2. リセットボタン (R) のクリック処理
+function resetCurrentWords() {
+    // 捕まえた言葉の配列を空にしてp5.jsを再描画
+    fixedWords = [];
+    loop(); 
+}
+
+// 3. 紡いだ言葉のみ表示ボタン (Space) のクリック処理
+function toggleWordsOnlyMode() {
+    // もしすでにフラグがあるなら反転、なければ作成
+    if (typeof wordsOnlyMode === "undefined") {
+        window.wordsOnlyMode = false;
+    }
+    window.wordsOnlyMode = !window.wordsOnlyMode;
+
+    // ボタンの見た目（アクティブ状態）を切り替える
+    let btn = document.getElementById("btn-toggle-words");
+    if (btn) {
+        if (window.wordsOnlyMode) {
+            btn.classList.add("active-mode");
+        } else {
+            btn.classList.remove("active-mode");
+        }
+    }
+}
+
+// 4. 修正：結果画面から真相に映るときに「美しい暗転」を挟むように上書き
+function proceedToReveal() {
+    let resPopup = document.getElementById("result-popup-overlay");
+    let fadeBg = document.getElementById("fade-bg");
+
+    if (fadeBg) {
+        // ① まず画面を真っ黒に暗転させる
+        fadeBg.style.pointerEvents = "auto";
+        fadeBg.style.transition = "opacity 0.6s ease";
+        fadeBg.style.opacity = "1";
+
+        // ② 暗転が完了した瞬間（0.6秒後）に、裏で画面を切り替えてからパッとフェードアウト
+        setTimeout(() => {
+            if (resPopup) resPopup.style.display = "none";
+            
+            // 真相画面を表示する既存の関数を呼び出す
+            triggerReveal();
+
+            // じわっと元の画面（真相画面）を表示
+            setTimeout(() => {
+                fadeBg.style.opacity = "0";
+                fadeBg.style.pointerEvents = "none";
+            }, 200);
+        }, 600);
+    } else {
+        // 万が一fade-bgがない場合のセーフティ
+        if (resPopup) resPopup.style.display = "none";
+        triggerReveal();
+    }
+}
+// ──────────────────────────────────────────────────────────
+// 🟢 修正：上下に分かれた新しいボタン表示に対応させる処理
+// ──────────────────────────────────────────────────────────
+
+// ゲーム開始時などにUIボタン一式を表示させる既存の関数を補強
+function showGameUI() {
+    let topControls = document.getElementById("ui-controls-top");
+    let bottomControls = document.getElementById("ui-controls-bottom");
+    
+    if (topControls) {
+        topControls.style.opacity = "1";
+        topControls.style.pointerEvents = "auto";
+    }
+    if (bottomControls) {
+        bottomControls.style.opacity = "1";
+        bottomControls.style.pointerEvents = "auto";
+    }
+}
+
+// タイトルに戻る時などにUIボタン一式を非表示にする処理
+function hideGameUI() {
+    let topControls = document.getElementById("ui-controls-top");
+    let bottomControls = document.getElementById("ui-controls-bottom");
+    
+    if (topControls) {
+        topControls.style.opacity = "0";
+        topControls.style.pointerEvents = "none";
+    }
+    if (bottomControls) {
+        bottomControls.style.opacity = "0";
+        bottomControls.style.pointerEvents = "none";
+    }
+}
+
+// 既存のストーリー終了時などの処理に割り込むためのフック
+// ※もしすでに container.style.display = "flex" などとしている場所に以下を追加すると確実です
+let originalStartGame = window.startGame;
+window.startGame = function() {
+    if (typeof originalStartGame === "function") originalStartGame();
+    showGameUI();
+};
