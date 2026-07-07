@@ -135,6 +135,9 @@ img {
     transform: scale(1.05);
 }
 
+/* ──────────────────────────────────────────────────────────
+   ✨ 修正：ストーリー画面の視認性向上（コントラスト＆テキスト影を強化）
+────────────────────────────────────────────────────────── */
 #story-screen {
     display: none;
     flex-direction: column;
@@ -142,10 +145,12 @@ img {
     align-items: center;
     z-index: 1025;
     cursor: pointer;
+    background: black; /* 念のため背景を完全な黒に固定 */
 }
 
+/* 本文テキスト：パキッと読めるようにコントラストを微調整 */
 #story-text {
-    color: white;
+    color: rgba(240, 240, 240, 0.95) !important; /* よりはっきりした白に近いグレー */
     font-family: serif;
     font-size: 20px;
     line-height: 2.5;
@@ -154,14 +159,31 @@ img {
     white-space: pre-wrap;
     max-width: 80%;
     min-height: 200px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9); /* 文字の後ろに引き締め効果の影を追加 */
 }
 
+/* 「Click to begin...」にあたるヒントテキスト：劇的に見やすく改善 */
 #story-hint {
     position: absolute;
-    bottom: 40px;
-    color: rgba(255, 255, 255, 0.2);
-    font-size: 12px;
-    letter-spacing: 1px;
+    bottom: 50px;
+    
+    /* 🎨 変更：視界の端でパッと灯るようにコントラストを大幅引き上げ（0.2 → 0.85） */
+    color: rgba(255, 255, 255, 0.85) !important; 
+    font-size: 13px;
+    letter-spacing: 2px;
+    
+    /* 🎨 追加：怪しげな画像や背景に絶対に埋もれない強い2重シャドウ */
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5), 0 0 15px rgba(0, 0, 0, 1);
+    
+    /* 🎨 追加：ユーザーへ「ここを押せば始まる」と直感的に伝える明滅アニメーション */
+    animation: storyPromptPulse 2.5s infinite ease-in-out;
+}
+
+/* 明滅アニメーションの定義 */
+@keyframes storyPromptPulse {
+    0% { opacity: 0.4; }
+    50% { opacity: 1; }
+    100% { opacity: 0.4; }
 }
 
 .screen {
@@ -449,17 +471,21 @@ img {
     background: #000;
 }
 /* ──────────────────────────────────────────────────────────
-   🟢 追加：真相画面のボタンを綺麗に横並びにする
+   ✨ 修正：真相画面のボタンのスタイルを完全に統一
 ────────────────────────────────────────────────────────── */
 .reveal-buttons {
     display: flex;
     justify-content: center;
-    gap: 20px;       /* ボタンとボタンのあいだの隙間 */
+    gap: 20px;
     margin-top: 20px;
 }
 
-/* 「タイトルに戻る」ボタン単体のデザイン（もう一度、別の意味を探すと共通化） */
-.back-title-btn {
+/* 「もう一度、別の意味を探す」ボタン（.restart-btn）と、
+   「タイトルに戻る」ボタン（.back-title-btn）のスタイルと高さを完全に統一 */
+.restart-btn, .back-title-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     padding: 12px 24px;
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.4);
@@ -467,9 +493,13 @@ img {
     font-size: 14px;
     cursor: pointer;
     transition: all 0.3s ease;
+    box-sizing: border-box;
+    line-height: 1;
+    font-family: serif;
 }
 
-.back-title-btn:hover {
+/* ホバー時の光り方も均等に統一 */
+.restart-btn:hover, .back-title-btn:hover {
     background: rgba(255, 255, 255, 0.1);
     color: #fff;
     border-color: #fff;
@@ -636,16 +666,53 @@ img {
     color: #eee;
 }
 
-/* 右側：累積データのデザイン */
+/* ──────────────────────────────────────────────────────────
+   ✨ 修正：他の旅人の言葉エリア（枠）とスクロール機能
+────────────────────────────────────────────────────────── */
+
+/* 1. 他の旅人の言葉を表示するボックス（枠の設定を強化） */
+.cumulative-words-area {
+    display: flex;
+    flex-direction: column;
+    height: 100%;             /* 親要素の高さに合わせる */
+    max-height: 280px;        /* 💡 枠全体の高さを固定します */
+    background: rgba(15, 15, 15, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    padding: 15px;
+    box-sizing: border-box;
+}
+
+/* 2. データが注入されるリスト本体（ここをスクロールさせます） */
 #res-cumulative-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 280px;
-    overflow-y: auto;
-    padding-right: 5px;
+    flex: 1;                  /* 枠内の高さをいっぱいに使う */
+    overflow-y: auto;         /* 💡 縦方向の中身が溢れたら自動でスクロールバーを表示 */
+    padding-right: 8px;       /* スクロールバーと文字が被らないための余白 */
 }
 
+/* ✨ 洗練された印象にするための、スクロールバーのカスタマイズ */
+#res-cumulative-list::-webkit-scrollbar {
+    width: 6px;               /* バーの太さ */
+}
+
+#res-cumulative-list::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.03); /* バーの背景の溝 */
+    border-radius: 3px;
+}
+
+#res-cumulative-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);  /* バーのつまみ部分 */
+    border-radius: 3px;
+}
+
+#res-cumulative-list::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.4);  /* ホバーしたときは少し明るく */
+}
+
+/* 累積データ内の各行のデザイン（既存のものを継承） */
 .cumulative-row {
     display: flex;
     align-items: center;
@@ -655,6 +722,7 @@ img {
     background: rgba(255, 255, 255, 0.03);
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;           /* 💡 スクロール時に行が縦に潰れるのを防ぐ */
 }
 
 .cumulative-bar-bg {
@@ -678,37 +746,232 @@ img {
     font-size: 11px;
 }
 
-/* ボタン関係 */
-.result-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.result-btn {
-    padding: 12px;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    text-align: center;
-    font-family: "serif";
-}
-
-.primary-btn {
-    background: #fff;
-    color: #000;
-}
-.primary-btn:hover {
-    background: #ffdc73;
-    box-shadow: 0 0 15px rgba(255, 220, 115, 0.4);
-}
-
-.secondary-btn {
+/* 結果画面内の「タイトルに戻る」ボタンを横並びの他のボタンに合わせる */
+.result-actions .secondary-btn {
     background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.3);
     color: #ccc;
+    font-family: serif;
+    transition: all 0.3s ease;
 }
-.secondary-btn:hover {
+.result-actions .secondary-btn:hover {
     background: rgba(255, 255, 255, 0.05);
     color: #fff;
+    border-color: rgba(255, 255, 255, 0.6);
+}
+/* ──────────────────────────────────────────────────────────
+   🟢 追加：新しく画面上に配置した3つのボタンのスタイル
+────────────────────────────────────────────────────────── */
+.ui-action-btn {
+    font-size: 11px;
+    padding: 6px 14px;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.6);
+    background: rgba(0,0,0,0.5);
+    cursor: pointer;
+    font-family: serif;
+    transition: all 0.3s;
+}
+.ui-action-btn:hover {
+    color: white;
+    border-color: rgba(255,255,255,0.7);
+    background: rgba(0,0,0,0.9);
+}
+/* 「紡いだ言葉のみ表示」のON状態の見た目 */
+.ui-action-btn.active-mode {
+    background: rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-color: #fff;
+}
+
+/* ──────────────────────────────────────────────────────────
+   🟢 修正：真相画面のボタンの文字が上にズレるバグの修正
+────────────────────────────────────────────────────────── */
+.restart-btn {
+    /* 縦のズレを防ぐため、back-title-btnと完全に同じ挙動・高さにする */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: #ccc;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-sizing: border-box; /* 高さを揃える */
+    line-height: 1; /* 文字の縦位置を中央に */
+}
+.back-title-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box; /* 高さを揃える */
+    line-height: 1; /* 文字の縦位置を中央に */
+}
+/* ──────────────────────────────────────────────────────────
+   ⚙️ 確定版：ボタンを極限まで上下に詰め、画像スペースを最大化
+────────────────────────────────────────────────────────── */
+
+/* 既存の古いUI配置設定を完全に無効化 */
+#ui-controls { display: none !important; }
+#reveal-trigger { position: static !important; transform: none !important; }
+
+/* 1. 左側の画像パネル（ここがボタンの基準位置になります） */
+#image-panel {
+    width: 40% !important;
+    height: 100vh !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 中央に画像を配置 */
+    align-items: center;
+    position: relative;     /* 内部のabsolute要素（ボタン）の基準点 */
+    padding: 0 !important;
+    box-sizing: border-box;
+    background: #111;
+}
+
+/* 2. 画像のサイズ調整（上下ボタンを詰めた分、極限まで大きく表示） */
+#image-panel img {
+    max-width: 98% !important;   /* 左右ほぼ隙間なし */
+    max-height: 84vh !important;  /* 👈 大幅アップ！68vhから84vhに広げて画像をドカンと大きく */
+    width: auto !important;
+    height: auto !important;
+    object-fit: contain !important;
+    margin: 0 !important;
+    z-index: 1;
+}
+
+/* 3. 上部ボタン（最上階のギリギリまで詰める） */
+#ui-controls-top {
+    position: absolute;
+    top: 10px;          /* 👈 30px から 10px に詰めて、上のデッドスペースを消去 */
+    left: 4%;           /* 横幅を広げるために位置を調整 */
+    width: 92%;         /* ボタン全体の横幅も少し広げて押しやすく */
+    z-index: 990;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 4. 下部ボタン（最下階のギリギリまで詰める） */
+#ui-controls-bottom {
+    position: absolute;
+    bottom: 10px;       /* 👈 30px から 10px に詰めて、下のデッドスペースを消去 */
+    left: 4%;
+    width: 92%;
+    z-index: 990;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* 5. すべてのボタンのデザイン（デフォルトは存在感を消すために超低コントラストに） */
+.ui-action-btn, #guide-trigger, #back-to-title-trigger, #reveal-trigger {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-size: 11px;
+    padding: 5px 2px;
+    
+    /* 🎨 変更：枠線と文字を限りなく黒に近いグレーにし、背景の透け感も極限まで落とす */
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    color: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    
+    cursor: pointer;
+    font-family: serif;
+    box-sizing: border-box;
+    white-space: nowrap;
+    
+    /* 🎨 追加：じわっと明るくなるようにアニメーションの速度を少し滑らかに */
+    transition: all 0.4s ease;
+}
+
+/* 🔥 変更：カーソルを合わせたとき（ホバー時）だけ、パッと見やすく浮き上がらせる */
+.ui-action-btn:hover, #guide-trigger:hover, #back-to-title-trigger:hover, #reveal-trigger:hover {
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    background: rgba(20, 20, 20, 0.9) !important;
+}
+
+/* 「真相を解き明かす」ボタンのアクセント（デフォルト時は他と同様に暗く） */
+#reveal-trigger {
+    border-color: rgba(255, 255, 255, 0.04) !important;
+    color: rgba(255, 255, 255, 0.15) !important;
+}
+#reveal-trigger:hover {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    color: rgba(255, 255, 255, 1) !important;
+}
+
+/* 「紡いだ言葉のみ表示」のON状態（ONの時は視認性のために少しだけ枠を保つ） */
+.ui-action-btn.active-mode {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+}
+.ui-action-btn.active-mode:hover {
+    background: rgba(255, 255, 255, 0.2) !important;
+    color: #fff !important;
+    border-color: #fff !important;
+}
+
+/* ──────────────────────────────────────────────────────────
+   ✨ 確定：結果画面・プレイ画面・真相画面の「タイトルに戻る」スタイル統一
+────────────────────────────────────────────────────────── */
+
+/* 1. プレイ画面（画像の下側エリア）のタイトルに戻るボタンを他のボタンと完全に統一 */
+#ui-controls-bottom .result-btn.secondary-btn {
+    flex: 1;
+    min-width: 0;
+    text-align: center;
+    font-size: 11px;
+    padding: 5px 2px !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    color: rgba(255, 255, 255, 0.15) !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    cursor: pointer;
+    font-family: serif;
+    box-sizing: border-box;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    transition: all 0.4s ease;
+}
+
+/* ホバー時に他のボタンと同じくパッと白く浮き上がらせる */
+#ui-controls-bottom .result-btn.secondary-btn:hover {
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    background: rgba(20, 20, 20, 0.9) !important;
+}
+
+/* 2. 結果集計ポップアップ（真ん中）の「この画面に残って鑑賞する」ボタンの装飾 */
+.result-actions .secondary-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+    color: #ccc !important;
+    font-size: 14px;
+    cursor: pointer;
+    font-family: serif;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+    line-height: 1;
+}
+.result-actions .secondary-btn:hover {
+    background: rgba(255, 255, 255, 0.05) !important;
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.6) !important;
 }
