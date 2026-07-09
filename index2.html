@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>BAGUETTES</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id="fade-bg"></div>
+
+    <div id="title-screen" class="screen" onclick="startStory()" style="cursor: pointer;">
+        <h1>BAGUETTE</h1>
+        <div id="begin">click to begin</div>
+    </div>
+
+    <div id="story-screen" class="screen" onclick="skipOrProceedStory()">
+        <div id="story-text"></div>
+        <div id="story-hint">click to skip</div>
+    </div>
+
+    <div id="gallery-screen" class="screen">
+        <div class="gallery-back-to-title" onclick="resetToTitle()">タイトルに戻る</div>
+        <h2>どの謎と出会う？</h2>
+        <div id="gallery"></div>
+    </div>
+
+    <div id="question-popup-overlay">
+        <div class="popup-content">
+            <div id="popup-step-text"></div>
+            <div class="popup-controls">
+                <div id="popup-prev-btn" onclick="prevPopupStep()">戻る</div>
+                <div id="popup-next-btn" onclick="nextPopupStep()">次へ</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="reveal-screen" class="screen">
+        <div class="reveal-container">
+            <h2>── 真相 ──</h2>
+            <div class="reveal-images-box">
+                <div class="reveal-img-wrapper"><img id="reveal-img-mystery"></div>
+                <div class="reveal-img-wrapper"><img id="reveal-img-target"></div>
+                <div class="reveal-img-wrapper"><img id="reveal-img-target2"></div>
+            </div>
+            <p class="reveal-text">それは、「バゲットの断面」でした。</p>
+            <p class="reveal-sub">バゲットの断面を隅でスタンプすることで不思議な形に出会うことができます。<br>それらはあなたの想像力によって深海の神秘や、<br>あるいは宇宙の広大さといったような、<br>様々なものへと形づけられていったのでした。</p>
+            <div class="reveal-buttons">
+                <div class="restart-btn" onclick="backToGallery()">もう一度探す</div>
+                <button class="back-title-btn" onclick="resetToTitle()">タイトルに戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="container">
+        <div id="image-panel">
+            <div id="ui-controls-top">
+                <div id="btn-reset-words" class="ui-action-btn" onclick="resetCurrentWords()">リセット (R)</div>
+                <div id="btn-toggle-words" class="ui-action-btn" onclick="toggleWordsOnlyMode()">紡いだ言葉のみ (Space)</div>
+            </div>
+
+            <div id="image-mask" class="panel-mask"></div>
+
+            <div class="click-zone left" onclick="prevImage()"></div>
+            <img id="reference" src="images/mistery/wys1.png">
+            <div class="click-zone right" onclick="nextImage()"></div>
+
+            <div id="ui-controls-bottom">
+                <div id="btn-back-gallery" class="ui-action-btn" onclick="backToGalleryFromGame()">ギャラリーへ (G)</div>
+                <div id="reveal-trigger" class="ui-action-btn" onclick="triggerReveal()">真相を解き明かす</div>
+                <div class="ui-action-btn secondary-btn" onclick="resetToTitle()">タイトルへ</div>
+            </div>
+        </div>
+
+        <div id="canvas-panel">
+            <div id="canvas-mask" class="panel-mask"></div>
+            <div id="timer-container"><div id="timer-bar"></div></div>
+        </div>
+    </div>
+
+    <div id="result-popup-overlay" class="screen" style="display:none;">
+        <div class="result-content wide-layout">
+            <h2>── 収集の記録 ──</h2>
+            <p id="result-dynamic-lead"></p>
+            <div class="result-main-flex">
+                <div class="result-left-column">
+                    <div class="result-image-preview"><img id="res-preview-img"></div>
+                    <div class="collected-words-area">
+                        <h3>あなたが繋ぎとめた言葉</h3>
+                        <div id="res-words-list"></div>
+                    </div>
+                </div>
+                <div class="result-right-column" id="res-right-column">
+                    <div class="cumulative-words-area">
+                        <h3>他の旅人の言葉</h3>
+                        <div id="res-cumulative-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-actions" id="result-actions-phase1">
+                <div class="result-btn primary-btn" onclick="showOthersWordsPhase()">他の旅人の言葉を見る</div>
+            </div>
+
+            <div class="result-actions" id="result-actions-phase2" style="display:none;">
+                <div class="result-btn primary-btn" onclick="proceedToReveal()">真相を見る</div>
+                <div class="result-btn secondary-btn" onclick="closeResultAndStay()">この画面に残る</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔥 ここから下が “正しい script の読み込み順” -->
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.9.0/lib/p5.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <script src="floatingWord.js"></script>
+    <script src="words.js"></script>
+    <script src="sketch.js"></script>
+
+</body>
+</html>
