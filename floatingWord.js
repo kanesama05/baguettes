@@ -9,12 +9,16 @@ class FloatingWord {
         this.x = (x !== undefined && x !== null) ? x : random(width);
         this.y = (y !== undefined && y !== null) ? y : random(height);
 
-        this.vx = random(-0.35, 0.35);   // さらにゆっくり漂うように
-        this.vy = random(-0.22, 0.22);   // さらにゆっくり漂うように
+        this.vx = random(-0.175, 0.175);   // 平均移動速度を約半分に調整
+        this.vy = random(-0.11, 0.11);     // 平均移動速度を約半分に調整
 
         this.alpha = random(180, 240);  // ひとつの語が浮かんだ瞬間を明確にする
+        this.baseAlpha = this.alpha;
         this.size = random(34, 44);     // 元のサイズの約1.7倍程度に調整
         this.fadeSpeed = random(0.5, 1.0);  // もう少し長く浮かんでから消えるようにする
+        this.lingerFrames = floor(random(72, 126));
+        this.fadeDuration = floor(random(51, 87));
+        this.fadeFrame = 0;
         this.delay = floor(random(8, 24));  // 新しい言葉が出てくる間隔を少し長くする
         this.hitboxWidth = textWidth(this.text) + 12;
         this.hitboxHeight = this.size + 10;
@@ -29,12 +33,20 @@ class FloatingWord {
         this.x += this.vx;
         this.y += this.vy;
 
-        // ゆっくりフェードアウト
-        this.alpha -= this.fadeSpeed;
+        if (this.lingerFrames > 0) {
+            this.lingerFrames -= 1;
+            return;
+        }
+
+        this.fadeFrame += 1;
+        let t = min(1, this.fadeFrame / this.fadeDuration);
+
+        // 線形でフェードアウト
+        this.alpha = max(0, this.baseAlpha * (1 - t));
     }
 
     fadeOut() {
-        this.alpha = max(0, this.alpha - this.fadeSpeed * 0.5);
+        this.alpha = max(0, this.alpha - max(7, this.fadeSpeed * 10));
     }
 
     draw() {

@@ -58,7 +58,7 @@ function getEl(id) {
 }
 
 let hasSeenGuide = false;
-let shouldShowGuideOnNextEntry = false;
+let shouldShowGuideOnNextEntry = true;
 
 // ゲームの制限時間
 let timeLimit = 60;
@@ -105,10 +105,10 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+    background(0);
 
-  // 軌跡を見えにくくしすぎず、弱い残像だけを残す
-  fill(0, 3);
+    // 軌跡を見えにくくしすぎず、弱い残像だけを残す
+    fill(0, 3);
   noStroke();
   rect(0, 0, width, height);
 
@@ -278,8 +278,8 @@ function skipOrProceedStory() {
             galleryScreen.style.display = "flex";
             galleryScreen.classList.add("fade-out");
             
-            let container = document.getElementById("container");
-            if (container) container.style.display = "flex";
+            let container = getEl("container");
+            if (container) container.style.display = "none";
             
             setTimeout(() => {
                 galleryScreen.classList.remove("fade-out");
@@ -577,7 +577,7 @@ function resetToTitle() {
         resPopup.classList.remove("fade-out");
     }
 
-    loop();
+    noLoop();
 
     fixedWords = [];
     texts = [];
@@ -588,6 +588,7 @@ function resetToTitle() {
     }
 
     isGameOver = false;
+    timeLimit = 60;
     showFixedOnly = false;
     window.wordsOnlyMode = false;
     hasSeenGuide = false;
@@ -719,6 +720,11 @@ function startVisualTimer(seconds) {
 // 🟢 完全動作版：結果画面の表示処理
 // ─────────────────────────────────────────────
 async function saveAndShowRealResults() {
+
+    // 制限時間切れ以外の経路からは結果画面を表示しない
+    if (!(isGameOver && timeLimit <= 0)) {
+        return;
+    }
 
     // 🔥 fade-bg が結果画面を隠す問題を完全除去
     let fadeBg = document.getElementById("fade-bg");
