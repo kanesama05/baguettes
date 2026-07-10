@@ -105,10 +105,10 @@ function setup() {
 }
 
 function draw() {
-  background(0);
+    background(0);
 
-  // 軌跡を見えにくくしすぎず、弱い残像だけを残す
-  fill(0, 3);
+    // 軌跡を見えにくくしすぎず、弱い残像だけを残す
+    fill(0, 3);
   noStroke();
   rect(0, 0, width, height);
 
@@ -278,8 +278,8 @@ function skipOrProceedStory() {
             galleryScreen.style.display = "flex";
             galleryScreen.classList.add("fade-out");
             
-            let container = document.getElementById("container");
-            if (container) container.style.display = "flex";
+            let container = getEl("container");
+            if (container) container.style.display = "none";
             
             setTimeout(() => {
                 galleryScreen.classList.remove("fade-out");
