@@ -577,7 +577,7 @@ function resetToTitle() {
         resPopup.classList.remove("fade-out");
     }
 
-    loop();
+    noLoop();
 
     fixedWords = [];
     texts = [];
@@ -588,6 +588,7 @@ function resetToTitle() {
     }
 
     isGameOver = false;
+    timeLimit = 60;
     showFixedOnly = false;
     window.wordsOnlyMode = false;
     hasSeenGuide = false;
