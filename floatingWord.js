@@ -16,8 +16,8 @@ class FloatingWord {
         this.baseAlpha = this.alpha;
         this.size = random(34, 44);     // 元のサイズの約1.7倍程度に調整
         this.fadeSpeed = random(0.5, 1.0);  // もう少し長く浮かんでから消えるようにする
-        this.lingerFrames = floor(random(72, 126));
-        this.fadeDuration = floor(random(51, 87));
+        this.lingerFrames = floor(random(108, 189));
+        this.fadeDuration = floor(random(77, 131));
         this.fadeFrame = 0;
         this.delay = floor(random(8, 24));  // 新しい言葉が出てくる間隔を少し長くする
         this.hitboxWidth = textWidth(this.text) + 12;
